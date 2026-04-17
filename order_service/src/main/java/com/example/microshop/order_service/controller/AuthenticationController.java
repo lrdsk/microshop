@@ -1,22 +1,26 @@
 package com.example.microshop.order_service.controller;
 
 import com.example.microshop.order_service.domain.User;
-import com.example.microshop.order_service.dto.AuthRequestDTO;
-import com.example.microshop.order_service.dto.AuthResponseDTO;
-import com.example.microshop.order_service.dto.RegisterRequestDTO;
+import com.example.microshop.order_service.dto.*;
+import com.example.microshop.order_service.service.UserAccessService;
 import com.example.microshop.order_service.service.UserService;
 import com.example.microshop.order_service.service.auth.JWTUtils;
+import com.example.microshop.order_service.service.auth.command.CreateAccessAndRefreshTokensByUsernameResult;
+import com.example.microshop.order_service.service.user.command.RegisterUserCommand;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,8 +28,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class AuthenticationController {
     private final AuthenticationManager authenticationManager;
-    private final JWTUtils jwtService;
+    private final JWTUtils jwtUtils;
     private final UserService userService;
+    private final UserAccessService userAccessService;
+    private final Set<String> refreshTokenStore = ConcurrentHashMap.newKeySet();
 
     @PostMapping("/login")
     public AuthResponseDTO login(@RequestBody AuthRequestDTO request) throws ClassNotFoundException {
@@ -36,19 +42,35 @@ public class AuthenticationController {
         );
 
         log.info("user with username {} has been successfully authenticated", request.username());
-        User user = userService.findUserByUsername(request.username());
-        String accessToken = jwtService.generateAccessToken(user.getId(), user.getUsername(), user.getPassword());
-        String refreshToken = jwtService.generateRefreshToken(user.getId());
+        CreateAccessAndRefreshTokensByUsernameResult accessAndRefreshTokensByUsername = userAccessService.createAccessAndRefreshTokensByUsername(request.username());
+        refreshTokenStore.add(accessAndRefreshTokensByUsername.refreshToken());
 
-        return new AuthResponseDTO(accessToken, refreshToken);
+        return new AuthResponseDTO(accessAndRefreshTokensByUsername.accessToken(), accessAndRefreshTokensByUsername.refreshToken());
     }
 
     @PostMapping("/reg")
     public ResponseEntity<HttpStatus> register(@RequestBody RegisterRequestDTO registerRequestDTO) {
         log.info("Try to register new user with username: {}", registerRequestDTO.username());
-        userService.register(registerRequestDTO);
+        userService.register(mapToRegisterUserCommand(registerRequestDTO));
         log.info("The new user has been successfully registered");
 
         return ResponseEntity.ok(HttpStatus.CREATED);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<RefreshTokenResponseDTO> refreshToken(@RequestBody RefreshTokenRequestDTO refreshTokenRequestDTO) throws ClassNotFoundException {
+        String refreshToken = refreshTokenRequestDTO.refreshToken();
+        log.info("Try to refresh access token with refresh token: {}", refreshToken);
+
+        if (!refreshTokenStore.contains(refreshToken) || !jwtUtils.isTokenValid(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        RefreshTokenResponseDTO responseDTO = new RefreshTokenResponseDTO(userAccessService.refreshAccessToken(refreshToken));
+        return ResponseEntity.ok(responseDTO);
+    }
+
+    private static @NotNull RegisterUserCommand mapToRegisterUserCommand(RegisterRequestDTO registerRequestDTO) {
+        return new RegisterUserCommand(registerRequestDTO.username(), registerRequestDTO.password(), registerRequestDTO.email());
     }
 }

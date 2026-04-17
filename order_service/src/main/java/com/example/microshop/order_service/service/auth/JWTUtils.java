@@ -51,8 +51,21 @@ public class JWTUtils {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
+    public boolean isTokenValid(String refreshToken) {
+        try {
+            extractAllClaims(refreshToken);
+            return !isTokenExpired(refreshToken);
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
     public String extractUsername(String token) {
         return extractAllClaims(token).get("username", String.class);
+    }
+
+    public UUID extractUserId(String token) {
+        return UUID.fromString(extractClaim(token, Claims::getSubject));
     }
 
     private Boolean isTokenExpired(String token) {
