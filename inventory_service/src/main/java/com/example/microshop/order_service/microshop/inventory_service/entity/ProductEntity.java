@@ -1,4 +1,4 @@
-package com.example.microshop.inventory_service.entity;
+package com.example.microshop.order_service.microshop.inventory_service.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
