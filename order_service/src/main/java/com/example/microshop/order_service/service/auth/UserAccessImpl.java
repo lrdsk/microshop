@@ -4,6 +4,7 @@ import com.example.microshop.order_service.domain.User;
 import com.example.microshop.order_service.service.UserAccessService;
 import com.example.microshop.order_service.service.UserService;
 import com.example.microshop.order_service.service.auth.command.CreateAccessAndRefreshTokensByUsernameResult;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,7 +19,7 @@ public class UserAccessImpl implements UserAccessService {
     private final UserService userService;
 
     @Override
-    public String refreshAccessToken(String refreshToken) throws ClassNotFoundException {
+    public String refreshAccessToken(String refreshToken) throws EntityNotFoundException {
         log.info("Called UserAccessService to refresh user access token");
 
         UUID userId = jwtUtils.extractUserId(refreshToken);
@@ -28,7 +29,7 @@ public class UserAccessImpl implements UserAccessService {
     }
 
     @Override
-    public CreateAccessAndRefreshTokensByUsernameResult createAccessAndRefreshTokensByUsername(String username) throws ClassNotFoundException {
+    public CreateAccessAndRefreshTokensByUsernameResult createAccessAndRefreshTokensByUsername(String username) throws EntityNotFoundException {
         log.info("Called UserAccessService to create tokens for user with username: {}", username);
 
         User user = userService.findUserByUsername(username);

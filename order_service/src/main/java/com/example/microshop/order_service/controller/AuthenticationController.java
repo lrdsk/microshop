@@ -7,6 +7,7 @@ import com.example.microshop.order_service.service.UserService;
 import com.example.microshop.order_service.service.auth.JWTUtils;
 import com.example.microshop.order_service.service.auth.command.CreateAccessAndRefreshTokensByUsernameResult;
 import com.example.microshop.order_service.service.user.command.RegisterUserCommand;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,7 @@ public class AuthenticationController {
     private final Set<String> refreshTokenStore = ConcurrentHashMap.newKeySet();
 
     @PostMapping("/login")
-    public AuthResponseDTO login(@RequestBody AuthRequestDTO request) throws ClassNotFoundException {
+    public AuthResponseDTO login(@RequestBody AuthRequestDTO request) throws EntityNotFoundException {
         log.info("Try to login with username: {}", request.username());
 
         authenticationManager.authenticate(
@@ -58,7 +59,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<RefreshTokenResponseDTO> refreshToken(@RequestBody RefreshTokenRequestDTO refreshTokenRequestDTO) throws ClassNotFoundException {
+    public ResponseEntity<RefreshTokenResponseDTO> refreshToken(@RequestBody RefreshTokenRequestDTO refreshTokenRequestDTO) throws EntityNotFoundException {
         String refreshToken = refreshTokenRequestDTO.refreshToken();
         log.info("Try to refresh access token with refresh token: {}", refreshToken);
 

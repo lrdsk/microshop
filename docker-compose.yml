@@ -2,25 +2,25 @@ services:
   postgres-inventory:
     image: postgres:15
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: inventory_db
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=inventory_db
     ports:
       - "5433:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_inventory_data:/var/lib/postgresql/data
     networks:
       - microshop-net
   postgres-order:
     image: postgres:15
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: order_db
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=order_db
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_order_data:/var/lib/postgresql/data
     networks:
       - microshop-net
 
@@ -28,4 +28,5 @@ networks:
   microshop-net:
     driver: bridge
 volumes:
-  postgres_data:
+  postgres_inventory_data:
+  postgres_order_data:
