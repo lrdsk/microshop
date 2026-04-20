@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.8.xsd">
+
+    <changeSet id="002_createOrderItemsTable" author="y.mikhailov">
+        <createTable tableName="order_items">
+            <column name="id" type="UUID" remarks="Идентификатор позиции заказа">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_id" type="UUID" remarks="Идентификатор заказа">
+                <constraints nullable="false" foreignKeyName="fk_order_items_order_id__orders_id" references="orders(id)" deleteCascade="true"/>
+            </column>
+            <column name="product_id" type="UUID" remarks="Идентификатор продукта">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="int" remarks="Количество заказанного продукта"/>
+            <column name="price" type="DECIMAL(10,2)" remarks="Цена продукта">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sale" type="int" defaultValue="0" remarks="Скидка на цену продукта в ПРОЦЕНТАХ (0 - 100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_price" type="DECIMAL(10,2)" remarks="Итоговая цена позиции (quantity * price * (100 - sale)/100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP" remarks="Дата и время создания">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql>
+            <![CDATA[
+            ALTER TABLE products
+                ADD CONSTRAINT ck_products_sale_range CHECK (sale >= 0 AND sale <= 100);
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

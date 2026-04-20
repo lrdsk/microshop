@@ -5,7 +5,5 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.8.xsd">
 
-    <include file="/db.changelog/user/user-changelog-master.xml"/>
-    <include file="/db.changelog/order/order-changelog-master.xml"/>
-    <include file="/db.changelog/event/event-changelog-master.xml"/>
+    <include file="/db.changelog/event/v-1.0/001_createEventOutboxTable.xml"/>
 </databaseChangeLog>
