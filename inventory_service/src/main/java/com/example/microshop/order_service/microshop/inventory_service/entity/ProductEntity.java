@@ -16,17 +16,21 @@ import java.util.UUID;
 @Table(name = "products")
 @NoArgsConstructor
 @Getter
-@Setter
 public class ProductEntity {
     @Id
+    @Setter
     private UUID id;
 
+    @Setter
     private String name;
 
+    @Setter
     private Integer quantity;
 
+    @Setter
     private Double price;
 
+    @Setter
     private Integer sale;
 
     @CreationTimestamp
