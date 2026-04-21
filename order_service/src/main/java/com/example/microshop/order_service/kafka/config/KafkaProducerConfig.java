@@ -1,6 +1,6 @@
-package com.example.microshop.order_service.kafka_starter.config;
+package com.example.microshop.order_service.kafka.config;
 
-import com.example.microshop.order_service.kafka_starter.events.OrderCreatedEvent;
+import com.example.microshop.order_service.kafka.events.OrderCreatedEvent;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.beans.factory.annotation.Value;

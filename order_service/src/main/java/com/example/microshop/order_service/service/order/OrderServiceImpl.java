@@ -4,16 +4,26 @@ import com.example.microshop.order_service.domain.Order;
 import com.example.microshop.order_service.domain.OrderFactory;
 import com.example.microshop.order_service.domain.OrderItem;
 import com.example.microshop.order_service.domain.User;
+import com.example.microshop.order_service.entity.AggregateType;
+import com.example.microshop.order_service.entity.EventStatus;
+import com.example.microshop.order_service.entity.OrderEntity;
+import com.example.microshop.order_service.entity.OutboxEntity;
+import com.example.microshop.order_service.kafka.events.OrderCreatedEvent;
 import com.example.microshop.order_service.repository.OrderRepository;
+import com.example.microshop.order_service.repository.OutboxRepository;
 import com.example.microshop.order_service.service.OrderService;
 import com.example.microshop.order_service.service.UserService;
 import com.example.microshop.order_service.service.order.command.CreateOrderCommand;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -21,7 +31,10 @@ import java.util.List;
 @Slf4j
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
+    private final OutboxRepository outboxRepository;
     private final UserService userService;
+    private final OrderMapper orderMapper;
+    private final ObjectMapper objectMapper;
 
     @Override
     public void createOrder(CreateOrderCommand createOrderCommand) {
@@ -43,7 +56,44 @@ public class OrderServiceImpl implements OrderService {
 
         orderItems.forEach(order::addItem);
 
-        //todo: Дописать сервис, чтобы сохранять order и его items в БД и написать 2-ой сервис, который будет сохранять
-        //todo: новый event создания order, сохранять в event_outbox
+        OrderEntity orderEntity = orderMapper.toEntity(order);
+        orderRepository.save(orderEntity);
+
+        OutboxEntity outboxEntity = buildOutboxEvent(orderEntity);
+        outboxRepository.save(outboxEntity);
+
+    }
+
+    private OutboxEntity buildOutboxEvent(OrderEntity order) {
+        OrderCreatedEvent event = new OrderCreatedEvent(
+                order.getId(),
+                order.getUserId(),
+                order.getItems().stream()
+                        .map(item -> new OrderCreatedEvent.OrderItemEvent(
+                                item.getProductId(),
+                                item.getQuantity(),
+                                item.getPrice(),
+                                item.getSale(),
+                                item.getTotalPrice()
+                        )).toList(),
+                order.getTotalAmount(),
+                LocalDateTime.now()
+        );
+
+        try {
+            String payload = objectMapper.writeValueAsString(event);
+
+            OutboxEntity outbox = new OutboxEntity();
+            outbox.setId(UUID.randomUUID());
+            outbox.setAggregateType(AggregateType.ORDER);
+            outbox.setAggregateId(order.getId());
+            outbox.setEventType("OrderCreated");
+            outbox.setPayload(payload);
+            outbox.setStatus(EventStatus.PENDING);
+
+            return outbox;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to serialize order event", e);
+        }
     }
 }

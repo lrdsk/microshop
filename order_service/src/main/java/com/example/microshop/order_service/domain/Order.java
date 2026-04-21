@@ -1,13 +1,19 @@
 package com.example.microshop.order_service.domain;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 public class Order {
+    @Getter
     private final UUID orderId;
+    @Getter
     private final UUID userId;
-    private double totalAmount;
+    @Getter
+    private double totalAmount = 0;
     private List<OrderItem> items = new ArrayList<>();
 
     Order(UUID orderId, UUID userId) {
@@ -24,5 +30,16 @@ public class Order {
                 });
 
         items.add(item);
+        recalculateTotalAmount();
+    }
+
+    private void recalculateTotalAmount() {
+        this.totalAmount = items.stream()
+                .mapToDouble(OrderItem::getTotalPrice)
+                .sum();
+    }
+
+    public List<OrderItem> getItems() {
+        return Collections.unmodifiableList(items);
     }
 }
