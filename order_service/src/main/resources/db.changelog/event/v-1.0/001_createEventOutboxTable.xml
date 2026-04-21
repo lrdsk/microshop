@@ -27,7 +27,7 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="status" type="varchar(20)" remarks="Содержание события" defaultValueComputed="PENDING">
+            <column name="status" type="varchar(20)" remarks="Содержание события" defaultValue="PENDING">
                 <constraints nullable="false"/>
             </column>
 

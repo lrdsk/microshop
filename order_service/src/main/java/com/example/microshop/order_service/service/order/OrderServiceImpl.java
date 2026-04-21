@@ -8,7 +8,7 @@ import com.example.microshop.order_service.entity.AggregateType;
 import com.example.microshop.order_service.entity.EventStatus;
 import com.example.microshop.order_service.entity.OrderEntity;
 import com.example.microshop.order_service.entity.OutboxEntity;
-import com.example.microshop.order_service.kafka.events.OrderCreatedEvent;
+import com.example.microshop.order_service.kafka.event.OrderCreatedEvent;
 import com.example.microshop.order_service.repository.OrderRepository;
 import com.example.microshop.order_service.repository.OutboxRepository;
 import com.example.microshop.order_service.service.OrderService;
@@ -72,11 +72,11 @@ public class OrderServiceImpl implements OrderService {
                         .map(item -> new OrderCreatedEvent.OrderItemEvent(
                                 item.getProductId(),
                                 item.getQuantity(),
-                                item.getPrice(),
+                                item.getPrice().doubleValue(),
                                 item.getSale(),
-                                item.getTotalPrice()
+                                item.getTotalPrice().doubleValue()
                         )).toList(),
-                order.getTotalAmount(),
+                order.getTotalAmount().doubleValue(),
                 LocalDateTime.now()
         );
 

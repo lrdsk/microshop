@@ -23,6 +23,18 @@ services:
       - postgres_order_data:/var/lib/postgresql/data
     networks:
       - microshop-net
+  postgres-notification:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=notification_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_notification_data:/var/lib/postgresql/data
+    networks:
+      - microshop-net
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:
@@ -42,7 +54,12 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092, PLAINTEXT_INTERNAL://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092, PLAINTEXT_INTERNAL://kafka:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT, PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
@@ -55,11 +72,13 @@ services:
       - "8085:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9093
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
     depends_on:
       - kafka
       - zookeeper
+    networks:
+      - microshop-net
 
 networks:
   microshop-net:
@@ -67,3 +86,4 @@ networks:
 volumes:
   postgres_inventory_data:
   postgres_order_data:
+  postgres_notification_data:

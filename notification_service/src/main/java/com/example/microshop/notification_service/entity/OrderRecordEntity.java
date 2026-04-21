@@ -1,27 +1,29 @@
-package com.example.microshop.order_service.entity;
+package com.example.microshop.notification_service.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "order_items")
+@Table(name = "order_records")
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-public class OrderItemEntity {
+public class OrderRecordEntity {
     @Id
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
-    private OrderEntity order;
+    @Column(name = "order_id", nullable = false)
+    private UUID orderId;
 
     @Column(name = "product_id", nullable = false)
     private UUID productId;
@@ -38,7 +40,6 @@ public class OrderItemEntity {
     @Column(name = "total_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalPrice;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
 }

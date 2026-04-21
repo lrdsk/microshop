@@ -1,4 +1,4 @@
-package com.example.microshop.order_service.kafka.events;
+package com.example.microshop.notification_service.kafka.event;
 
 import java.time.LocalDateTime;
 import java.util.List;
