@@ -1,8 +1,8 @@
-package com.example.microshop.order_service.microshop.inventory_service.service;
+package com.example.microshop.inventory_service.service;
 
-import com.example.microshop.order_service.microshop.inventory_service.domain.Product;
-import com.example.microshop.order_service.microshop.inventory_service.domain.ProductFactory;
-import com.example.microshop.order_service.microshop.inventory_service.entity.ProductEntity;
+import com.example.microshop.inventory_service.domain.Product;
+import com.example.microshop.inventory_service.domain.ProductFactory;
+import com.example.microshop.inventory_service.entity.ProductEntity;
 import org.springframework.stereotype.Component;
 
 @Component

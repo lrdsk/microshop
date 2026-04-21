@@ -1,9 +1,9 @@
-package com.example.microshop.order_service.microshop.inventory_service.service;
+package com.example.microshop.inventory_service.service;
 
-import com.example.microshop.order_service.microshop.inventory_service.domain.Product;
-import com.example.microshop.order_service.microshop.inventory_service.domain.ProductFactory;
-import com.example.microshop.order_service.microshop.inventory_service.entity.ProductEntity;
-import com.example.microshop.order_service.microshop.inventory_service.repository.ProductRepository;
+import com.example.microshop.inventory_service.domain.Product;
+import com.example.microshop.inventory_service.domain.ProductFactory;
+import com.example.microshop.inventory_service.entity.ProductEntity;
+import com.example.microshop.inventory_service.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
-package com.example.microshop.order_service.microshop.inventory_service.adapter.grpc;
+package com.example.microshop.inventory_service.adapter.grpc;
 
-import com.example.microshop.order_service.microshop.inventory_service.entity.ProductEntity;
-import com.example.microshop.order_service.microshop.inventory_service.repository.ProductRepository;
+import com.example.microshop.inventory_service.entity.ProductEntity;
+import com.example.microshop.inventory_service.repository.ProductRepository;
 import inventory.Inventory;
 import inventory.InventoryServiceGrpc;
 import lombok.RequiredArgsConstructor;

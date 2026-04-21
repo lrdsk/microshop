@@ -1,6 +1,4 @@
-package com.example.microshop.order_service.microshop.inventory_service.domain;
-
-import org.springframework.cglib.core.Local;
+package com.example.microshop.inventory_service.domain;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

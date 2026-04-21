@@ -1,10 +1,10 @@
-package com.example.microshop.order_service.microshop.inventory_service.adapter.controller;
+package com.example.microshop.inventory_service.adapter.controller;
 
-import com.example.microshop.order_service.microshop.inventory_service.domain.Product;
-import com.example.microshop.order_service.microshop.inventory_service.dto.ProductRequestDTO;
-import com.example.microshop.order_service.microshop.inventory_service.dto.ProductResponseDTO;
-import com.example.microshop.order_service.microshop.inventory_service.service.CreateProductCommand;
-import com.example.microshop.order_service.microshop.inventory_service.service.ProductService;
+import com.example.microshop.inventory_service.domain.Product;
+import com.example.microshop.inventory_service.dto.ProductRequestDTO;
+import com.example.microshop.inventory_service.dto.ProductResponseDTO;
+import com.example.microshop.inventory_service.service.CreateProductCommand;
+import com.example.microshop.inventory_service.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

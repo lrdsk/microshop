@@ -1,4 +1,4 @@
-package com.example.microshop.order_service.microshop.inventory_service.domain;
+package com.example.microshop.inventory_service.domain;
 
 import lombok.Getter;
 import lombok.Setter;

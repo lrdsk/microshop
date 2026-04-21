@@ -1,6 +1,6 @@
-package com.example.microshop.order_service.microshop.inventory_service.service;
+package com.example.microshop.inventory_service.service;
 
-import com.example.microshop.order_service.microshop.inventory_service.domain.Product;
+import com.example.microshop.inventory_service.domain.Product;
 
 import java.util.List;
 import java.util.UUID;

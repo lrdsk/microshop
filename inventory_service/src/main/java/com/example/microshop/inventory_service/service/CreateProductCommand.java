@@ -1,4 +1,4 @@
-package com.example.microshop.order_service.microshop.inventory_service.service;
+package com.example.microshop.inventory_service.service;
 
 import java.util.UUID;
 

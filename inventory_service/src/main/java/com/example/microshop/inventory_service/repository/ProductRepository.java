@@ -1,6 +1,6 @@
-package com.example.microshop.order_service.microshop.inventory_service.repository;
+package com.example.microshop.inventory_service.repository;
 
-import com.example.microshop.order_service.microshop.inventory_service.entity.ProductEntity;
+import com.example.microshop.inventory_service.entity.ProductEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
