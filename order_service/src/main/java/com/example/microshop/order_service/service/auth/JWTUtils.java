@@ -26,6 +26,10 @@ public class JWTUtils {
     @Value("${jwt.refresh.expiration.ms}")
     private long REFRESH_EXPIRATION_MS; // 7 дней = 604800000
 
+    public long getRefreshExpirationMs() {
+        return REFRESH_EXPIRATION_MS;
+    }
+
     public String generateAccessToken(UUID userId, String username, String role) {
         return Jwts.builder()
                 .subject(userId.toString())

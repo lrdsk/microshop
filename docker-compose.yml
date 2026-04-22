@@ -1,4 +1,12 @@
 services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - microshop-net
+    volumes:
+      - redis_data:/data
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: pgadmin
@@ -100,3 +108,4 @@ volumes:
   postgres_order_data:
   postgres_notification_data:
   pgadmin_data:
+  redis_data:
