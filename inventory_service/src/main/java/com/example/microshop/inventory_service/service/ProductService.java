@@ -10,4 +10,5 @@ public interface ProductService {
     Product findById(UUID id);
     void createProduct(CreateProductCommand command);
     void deleteProduct(UUID id);
+    int reduceProductQuantity(UUID id, int quantity);
 }

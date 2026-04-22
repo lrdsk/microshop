@@ -12,17 +12,17 @@ public class Product {
 
     private String name;
 
-    private Integer quantity;
+    private int quantity;
 
-    private Double price;
+    private double price;
 
-    private Integer sale;
+    private int sale;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime modifiedAt;
 
-    Product(UUID id, String name, Integer quantity, Double price, Integer sale) {
+    Product(UUID id, String name, int quantity, double price, int sale) {
         this.id = id;
         this.name = name;
         this.quantity = quantity;
@@ -36,5 +36,18 @@ public class Product {
 
     void setModifiedAt(LocalDateTime modifiedAt) {
         this.modifiedAt = modifiedAt;
+    }
+
+
+    public int reduceQuantity(int quantity) {
+        int reducedValue;
+        if(this.quantity < quantity) {
+            reducedValue = Math.abs(quantity) - this.quantity;
+            this.quantity = 0;
+        } else {
+            reducedValue = quantity;
+            this.quantity = this.quantity - quantity;
+        }
+        return reducedValue;
     }
 }

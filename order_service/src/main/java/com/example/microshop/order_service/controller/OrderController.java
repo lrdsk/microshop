@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/order")
@@ -31,11 +29,11 @@ public class OrderController {
     public ResponseEntity<String> createOrder(@RequestBody List<ProductRequest> productsRequest,
                                               @AuthenticationPrincipal UserDetails userDetails) {
 
-        List<Inventory.ProductResponse> products = new ArrayList<>();
+        Map<Inventory.ProductResponse, Integer> products = new HashMap<>();
         for (ProductRequest productRequest : productsRequest) {
             Inventory.ProductResponse currentProduct;
             try {
-                currentProduct = inventoryClient.checkProduct(productRequest.productId().toString());
+                currentProduct = inventoryClient.checkProduct(productRequest.productId().toString(), productRequest.quantity());
             } catch (StatusRuntimeException e) {
                 return ResponseEntity.badRequest().body("Product check failed: " + e.getMessage());
             }
@@ -43,6 +41,7 @@ public class OrderController {
             if (currentProduct.getQuantity() < productRequest.quantity()) {
                 return ResponseEntity.badRequest().body("Not enough stock");
             }
+            products.put(currentProduct, productRequest.quantity());
         }
 
         CreateOrderCommand createOrderCommand = mapCreateOrderCommand(userDetails, products);
@@ -51,15 +50,16 @@ public class OrderController {
         return ResponseEntity.ok("Order has been created");
     }
 
-    private static @NotNull CreateOrderCommand mapCreateOrderCommand(UserDetails userDetails, List<Inventory.ProductResponse> products) {
+    private static @NotNull CreateOrderCommand mapCreateOrderCommand(UserDetails userDetails, Map<Inventory.ProductResponse, Integer> products) {
         return new CreateOrderCommand(
                 userDetails.getUsername(),
-                products.stream()
+                products.entrySet()
+                        .stream()
                         .map(currentProduct -> new CreateOrderCommand.OrderItemValue(
-                                UUID.fromString(currentProduct.getProductId()),
-                                currentProduct.getQuantity(),
-                                currentProduct.getPrice(),
-                                currentProduct.getSale())).toList()
+                                UUID.fromString(currentProduct.getKey().getProductId()),
+                                currentProduct.getValue(),
+                                currentProduct.getKey().getPrice(),
+                                currentProduct.getKey().getSale())).toList()
         );
     }
 }

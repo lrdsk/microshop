@@ -10,13 +10,14 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "outbox")
+@Table(name = "event_outbox")
 @NoArgsConstructor
 @Getter
 @Setter
 public class OutboxEntity {
     @Id
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     @Enumerated(EnumType.STRING)
     private AggregateType aggregateType;
     private UUID aggregateId;

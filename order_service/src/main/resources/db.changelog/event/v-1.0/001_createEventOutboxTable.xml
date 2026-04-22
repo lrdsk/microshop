@@ -38,7 +38,7 @@
         </createTable>
 
         <sql>
-            CREATE INDEX idx_outbox_status_created ON outbox(status, created_at)
+            CREATE INDEX idx_outbox_status_created ON event_outbox(status, created_at)
         </sql>
     </changeSet>
 </databaseChangeLog>

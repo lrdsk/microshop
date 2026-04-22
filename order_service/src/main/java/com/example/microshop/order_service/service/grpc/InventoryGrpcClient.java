@@ -12,9 +12,10 @@ public class InventoryGrpcClient {
     @GrpcClient("inventory-service")
     private InventoryServiceGrpc.InventoryServiceBlockingStub inventoryStub;
 
-    public Inventory.ProductResponse checkProduct(String productId) {
+    public Inventory.ProductResponse checkProduct(String productId, int quantity) {
         Inventory.ProductRequest request = Inventory.ProductRequest.newBuilder()
                 .setProductId(productId)
+                .setQuantity(quantity)
                 .build();
         return inventoryStub.checkAvailability(request);
     }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
     public User fromEntity(UserEntity userEntity) {
-        return UserFactory.createUser(userEntity.getUsername(), userEntity.getPassword(), userEntity.getEmail());
+        return UserFactory.createUser(userEntity.getId(), userEntity.getUsername(), userEntity.getPassword(), userEntity.getEmail());
     }
 
     public UserEntity toEntity(User user) {

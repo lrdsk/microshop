@@ -25,7 +25,7 @@ public class ProductMapper {
         productEntity.setName(product.getName());
         productEntity.setQuantity(product.getQuantity());
         productEntity.setPrice(product.getPrice());
-        productEntity.setSale(productEntity.getSale());
+        productEntity.setSale(product.getSale());
 
         return productEntity;
     }

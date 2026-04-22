@@ -14,16 +14,15 @@ import com.example.microshop.order_service.repository.OutboxRepository;
 import com.example.microshop.order_service.service.OrderService;
 import com.example.microshop.order_service.service.UserService;
 import com.example.microshop.order_service.service.order.command.CreateOrderCommand;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @Transactional
@@ -84,7 +83,6 @@ public class OrderServiceImpl implements OrderService {
             String payload = objectMapper.writeValueAsString(event);
 
             OutboxEntity outbox = new OutboxEntity();
-            outbox.setId(UUID.randomUUID());
             outbox.setAggregateType(AggregateType.ORDER);
             outbox.setAggregateId(order.getId());
             outbox.setEventType("OrderCreated");
@@ -92,7 +90,7 @@ public class OrderServiceImpl implements OrderService {
             outbox.setStatus(EventStatus.PENDING);
 
             return outbox;
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new RuntimeException("Failed to serialize order event", e);
         }
     }

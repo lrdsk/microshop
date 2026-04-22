@@ -39,7 +39,6 @@ public class ProductController {
     public ResponseEntity<HttpStatus> createProduct(@RequestBody ProductRequestDTO productRequestDTO) {
         log.info("REST request to create product: {}", productRequestDTO);
         CreateProductCommand command = new CreateProductCommand(
-                productRequestDTO.id(),
                 productRequestDTO.name(),
                 productRequestDTO.quantity(),
                 productRequestDTO.price(),

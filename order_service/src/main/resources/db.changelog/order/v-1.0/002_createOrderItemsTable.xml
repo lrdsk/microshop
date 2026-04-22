@@ -32,7 +32,7 @@
         </createTable>
         <sql>
             <![CDATA[
-            ALTER TABLE products
+            ALTER TABLE order_items
                 ADD CONSTRAINT ck_products_sale_range CHECK (sale >= 0 AND sale <= 100);
             ]]>
         </sql>

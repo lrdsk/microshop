@@ -1,10 +1,8 @@
 package com.example.microshop.inventory_service.service;
 
-import java.util.UUID;
-
-public record CreateProductCommand(UUID id,
-                                   String name,
-                                   Integer quantity,
-                                   Double price,
-                                   Integer sale) {
+public record CreateProductCommand(
+        String name,
+        Integer quantity,
+        Double price,
+        Integer sale) {
 }

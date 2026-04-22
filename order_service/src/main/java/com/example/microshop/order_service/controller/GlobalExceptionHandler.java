@@ -29,12 +29,6 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("VALIDATION_ERROR", message);
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFound(EntityNotFoundException ex) {
-        return new ErrorResponse("NOT_FOUND", ex.getMessage());
-    }
-
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleGeneric(Exception ex) {

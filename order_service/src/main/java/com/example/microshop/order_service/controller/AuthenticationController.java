@@ -1,6 +1,5 @@
 package com.example.microshop.order_service.controller;
 
-import com.example.microshop.order_service.domain.User;
 import com.example.microshop.order_service.dto.*;
 import com.example.microshop.order_service.service.UserAccessService;
 import com.example.microshop.order_service.service.UserService;
