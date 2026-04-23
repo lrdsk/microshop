@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void register(RegisterUserCommand command) {
-        log.info("Called UserService to register new user with username: {} and email: {}", command.username(), command.email());
+        log.info("Called UserService to register new user with username: {}", command.username());
         Optional<UserEntity> userEntity = userRepository.findByUsername(command.username());
 
         if(userEntity.isPresent()) {
