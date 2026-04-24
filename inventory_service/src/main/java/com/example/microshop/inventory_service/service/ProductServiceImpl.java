@@ -65,8 +65,8 @@ public class ProductServiceImpl implements ProductService {
 
         log.info("Product quantity reduced on: {}", reducedQuantity);
 
-        ProductEntity productEntityAfterReduceQuantity = productMapper.toEntity(product);
-        productRepository.save(productEntityAfterReduceQuantity);
+        productEntity.setQuantity(reducedQuantity);
+        productRepository.save(productEntity);
 
         return reducedQuantity;
     }
