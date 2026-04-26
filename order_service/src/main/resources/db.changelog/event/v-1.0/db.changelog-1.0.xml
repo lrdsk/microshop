@@ -6,4 +6,5 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.8.xsd">
 
     <include file="/db.changelog/event/v-1.0/001_createEventOutboxTable.xml"/>
+    <include file="/db.changelog/event/v-1.0/002_alterEventOutboxTable.xml"/>
 </databaseChangeLog>

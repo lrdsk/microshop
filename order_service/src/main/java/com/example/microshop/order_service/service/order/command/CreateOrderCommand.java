@@ -4,13 +4,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public record CreateOrderCommand(String username, List<OrderItemValue> orderItemValues) {
+public record CreateOrderCommand(UUID userId, List<OrderItemValue> orderItemValues) {
     public CreateOrderCommand {
-        Objects.requireNonNull(username, "username must be not null in CreateOrderCommand");
-
-        if(username.isBlank()) {
-            throw new IllegalStateException("username must be not blank in CreateOrderCommand");
-        }
+        Objects.requireNonNull(userId, "userId must be not null in CreateOrderCommand");
     }
     public record OrderItemValue(UUID productId, Integer quantity, Double price, Integer sale) {
         public OrderItemValue {

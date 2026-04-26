@@ -1,5 +1,6 @@
 package com.example.microshop.order_service.service.grpc;
 
+import com.example.microshop.order_service.interceptor.TraceIdGrpcClientInterceptor;
 import inventory.Inventory;
 import inventory.InventoryServiceGrpc;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class InventoryGrpcClient {
-    @GrpcClient("inventory-service")
+    @GrpcClient(value = "inventory-service")
     private InventoryServiceGrpc.InventoryServiceBlockingStub inventoryStub;
 
     public Inventory.ProductResponse checkProduct(String productId, int quantity) {
@@ -17,6 +18,10 @@ public class InventoryGrpcClient {
                 .setProductId(productId)
                 .setQuantity(quantity)
                 .build();
-        return inventoryStub.checkAvailability(request);
+        return getStubWithTrace().checkAvailability(request);
+    }
+
+    private InventoryServiceGrpc.InventoryServiceBlockingStub getStubWithTrace() {
+        return inventoryStub.withInterceptors(new TraceIdGrpcClientInterceptor());
     }
 }

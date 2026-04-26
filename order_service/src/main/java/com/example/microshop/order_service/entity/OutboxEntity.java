@@ -23,6 +23,7 @@ public class OutboxEntity {
     private UUID aggregateId;
     private String eventType;
     private String payload;
+    private UUID traceId;
     @Enumerated(EnumType.STRING)
     private EventStatus status;
     @CreationTimestamp

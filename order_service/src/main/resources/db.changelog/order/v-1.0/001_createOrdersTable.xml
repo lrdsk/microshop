@@ -11,7 +11,7 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="UUID" remarks="Идентификатор пользователя, владельца заказом">
-                <constraints nullable="false" foreignKeyName="fk_orders_user_id__users_id" references="users(id)"/>
+                <constraints nullable="false"/>
             </column>
             <column name="total_amount" type="DECIMAL(10,2)" remarks="Итоговая сумма заказа (за все продукты с учетом скидок)">
                 <constraints nullable="false"/>

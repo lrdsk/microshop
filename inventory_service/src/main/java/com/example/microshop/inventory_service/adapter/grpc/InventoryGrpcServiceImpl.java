@@ -1,8 +1,6 @@
 package com.example.microshop.inventory_service.adapter.grpc;
 
 import com.example.microshop.inventory_service.domain.Product;
-import com.example.microshop.inventory_service.entity.ProductEntity;
-import com.example.microshop.inventory_service.repository.ProductRepository;
 import com.example.microshop.inventory_service.service.ProductService;
 import inventory.Inventory;
 import inventory.InventoryServiceGrpc;
@@ -16,6 +14,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class InventoryGrpcServiceImpl extends InventoryServiceGrpc.InventoryServiceImplBase {
     private final ProductService productService;
+
     @Override
     public void checkAvailability(Inventory.ProductRequest request,
                                   io.grpc.stub.StreamObserver<Inventory.ProductResponse> responseObserver) {

@@ -21,6 +21,7 @@ public class OrderRecordController {
 
     @GetMapping("/all")
     public List<OrderRecordResponseDTO> getAllOrderRecords() {
+        log.info("REST request to find orders");
         return searchOrderRecordService.findAll();
     }
 

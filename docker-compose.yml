@@ -1,4 +1,16 @@
 services:
+  postgres-auth:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=auth_db
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_auth_data:/var/lib/postgresql/data
+    networks:
+      - microshop-net
   redis:
     image: redis:7-alpine
     ports:
@@ -104,6 +116,7 @@ networks:
   microshop-net:
     driver: bridge
 volumes:
+  postgres_auth_data:
   postgres_inventory_data:
   postgres_order_data:
   postgres_notification_data:
