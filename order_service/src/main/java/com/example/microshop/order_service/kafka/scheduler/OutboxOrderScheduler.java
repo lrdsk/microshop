@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,6 +26,8 @@ public class OutboxOrderScheduler {
 
     private final OutboxRepository outboxRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
+    @Value("${internal.api.key}")
+    private String internalApiKey;
     private static final String TOPIC = "orders";
 
     @Scheduled(fixedDelay = 5000)
@@ -38,6 +41,7 @@ public class OutboxOrderScheduler {
             MDC.put("X-Trace-Id", traceId.toString());
             try {
                 ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC, event.getAggregateId().toString(), event.getPayload());
+                record.headers().add("X-Internal-Api-Key", internalApiKey.getBytes(StandardCharsets.UTF_8));
                 record.headers().add("X-Trace-Id", traceId.toString().getBytes(StandardCharsets.UTF_8));
 
                 kafkaTemplate.send(record);

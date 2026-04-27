@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
@@ -24,17 +25,14 @@ import java.util.stream.Collectors;
 public class OrderEventConsumer {
     private final ObjectMapper objectMapper;
     private final OrderRecordRepository repository;
+    @Value("${internal.api.key}")
+    private String internalApiKey;
 
     @KafkaListener(topics = "orders", groupId = "notification-group")
     public void consume(ConsumerRecord<String, String> record) {
-        String traceId = null;
-        Header header = record.headers().lastHeader("X-Trace-Id");
-        if (header != null) {
-            traceId = new String(header.value(), StandardCharsets.UTF_8);
-        }
-        if (traceId == null || traceId.isEmpty()) {
-            traceId = UUID.randomUUID().toString();
-        }
+        if (validateApiKeyFromRecord(record)) return;
+
+        String traceId = getTraceIdFromRecord(record);
 
         MDC.put("X-Trace-Id", traceId);
         try {
@@ -59,5 +57,26 @@ public class OrderEventConsumer {
         } finally {
             MDC.remove("X-Trace-Id");
         }
+    }
+
+    private boolean validateApiKeyFromRecord(ConsumerRecord<String, String> record) {
+        Header apiKeyHeader = record.headers().lastHeader("X-Internal-Api-Key");
+        if (apiKeyHeader == null || !internalApiKey.equals(new String(apiKeyHeader.value(), StandardCharsets.UTF_8))) {
+            log.error("Invalid or missing API Key. Message rejected.");
+            return true;
+        }
+        return false;
+    }
+
+    private static String getTraceIdFromRecord(ConsumerRecord<String, String> record) {
+        String traceId = null;
+        Header header = record.headers().lastHeader("X-Trace-Id");
+        if (header != null) {
+            traceId = new String(header.value(), StandardCharsets.UTF_8);
+        }
+        if (traceId == null || traceId.isEmpty()) {
+            traceId = UUID.randomUUID().toString();
+        }
+        return traceId;
     }
 }
