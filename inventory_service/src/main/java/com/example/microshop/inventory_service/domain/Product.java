@@ -40,14 +40,11 @@ public class Product {
 
 
     public int reduceQuantity(int quantity) {
-        int reducedValue;
         if(this.quantity < quantity) {
-            reducedValue = Math.abs(quantity) - this.quantity;
-            this.quantity = 0;
-        } else {
-            reducedValue = quantity;
-            this.quantity = this.quantity - quantity;
+           throw new IllegalStateException("Not enough stock");
         }
-        return reducedValue;
+
+        this.quantity = this.quantity - quantity;
+        return quantity;
     }
 }

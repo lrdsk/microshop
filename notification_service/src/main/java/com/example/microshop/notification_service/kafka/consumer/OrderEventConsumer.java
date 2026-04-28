@@ -3,6 +3,8 @@ package com.example.microshop.notification_service.kafka.consumer;
 import com.example.microshop.notification_service.entity.OrderRecordEntity;
 import com.example.microshop.notification_service.kafka.event.OrderCreatedEvent;
 import com.example.microshop.notification_service.repository.OrderRecordRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -11,7 +13,6 @@ import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -54,6 +55,8 @@ public class OrderEventConsumer {
 
             repository.saveAll(records);
             log.info("Saved {} order items for orderId: {}", records.size(), event.getOrderId());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         } finally {
             MDC.remove("X-Trace-Id");
         }

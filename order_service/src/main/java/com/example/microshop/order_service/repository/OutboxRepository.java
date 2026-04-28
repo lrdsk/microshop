@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface OutboxRepository extends JpaRepository<OutboxEntity, UUID> {
+public interface OutboxRepository extends JpaRepository<OutboxEntity, Integer> {
     @Query("SELECT o FROM OutboxEntity o WHERE o.status = 'PENDING' ORDER BY o.createdAt ASC")
     List<OutboxEntity> findOutboxEntityByStatusPending(Pageable pageable);
 }

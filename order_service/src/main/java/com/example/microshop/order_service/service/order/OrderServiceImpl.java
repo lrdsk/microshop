@@ -12,13 +12,13 @@ import com.example.microshop.order_service.repository.OrderRepository;
 import com.example.microshop.order_service.repository.OutboxRepository;
 import com.example.microshop.order_service.service.OrderService;
 import com.example.microshop.order_service.service.order.command.CreateOrderCommand;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -88,8 +88,8 @@ public class OrderServiceImpl implements OrderService {
             outbox.setTraceId(UUID.fromString(currentTraceId));
 
             return outbox;
-        } catch (JacksonException e) {
-            throw new RuntimeException("Failed to serialize order event", e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
     }
 }

@@ -5,6 +5,7 @@ import com.example.microshop.inventory_service.interceptor.TraceIdGrpcServerInte
 import com.example.microshop.inventory_service.service.ProductService;
 import inventory.Inventory;
 import inventory.InventoryServiceGrpc;
+import io.grpc.Status;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -44,8 +45,15 @@ public class InventoryGrpcServiceImpl extends InventoryServiceGrpc.InventoryServ
                         .asRuntimeException());
                 return;
             }
-
-            int reducedValue = productService.reduceProductQuantity(product.getId(), request.getQuantity());
+            int reducedValue;
+            try {
+                reducedValue = productService.reduceProductQuantity(product.getId(), request.getQuantity());
+            } catch (IllegalStateException e) {
+                responseObserver.onError(Status.INVALID_ARGUMENT
+                        .withDescription("Get current quantity '%s' of product impossible, not enough stock".formatted(productId))
+                        .asRuntimeException());
+                return;
+            }
 
             Inventory.ProductResponse response = Inventory.ProductResponse.newBuilder()
                     .setProductId(product.getId().toString())
