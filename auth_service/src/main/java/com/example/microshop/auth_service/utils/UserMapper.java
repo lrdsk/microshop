@@ -1,4 +1,4 @@
-package com.example.microshop.auth_service.service.user;
+package com.example.microshop.auth_service.utils;
 
 
 import com.example.microshop.auth_service.domain.User;

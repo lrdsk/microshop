@@ -4,6 +4,20 @@ package com.example.microshop.auth_service.domain;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Фабрика для создания экземпляров {@link User}.
+ * <p>
+ * Предоставляет статические методы для создания пользователей,
+ * гарантируя, что все обязательные поля (id, username, password, email)
+ * не являются {@code null}. В случае передачи {@code null} выбрасывается
+ * {@link NullPointerException} с информативным сообщением.
+ * </p>
+ * <p>
+ * Класс является финальным и имеет приватный конструктор,
+ * запрещающий создание экземпляров (утилитарный класс).
+ * </p>
+ * @see User
+ */
 public final class UserFactory {
     private UserFactory() {}
 

@@ -21,6 +21,17 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Kafka-потребитель для обработки событий о созданных заказах.
+ * <p>
+ * Слушает топик {@code orders}, проверяет внутренний API-ключ,
+ * извлекает traceId из заголовков сообщения и сохраняет записи заказов
+ * в базу данных сервиса уведомлений.
+ * </p>
+ *
+ * @see OrderCreatedEvent
+ * @see OrderRecordRepository
+ */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -31,6 +42,25 @@ public class OrderEventConsumer {
     @Value("${internal.api.key}")
     private String internalApiKey;
 
+    /**
+     * Основной метод-обработчик сообщений из топика {@code orders}.
+     * <p>
+     * Выполняет следующие шаги:
+     * <ol>
+     *     <li>Проверяет наличие и корректность заголовка {@code X-Internal-Api-Key}.
+     *         При несовпадении логгирует ошибку и завершает обработку.</li>
+     *     <li>Извлекает traceId из заголовка {@code X-Trace-Id} (или генерирует новый),
+     *         помещает его в {@link MDC} для сквозной трассировки логов.</li>
+     *     <li>Десериализует тело сообщения в объект {@link OrderCreatedEvent}.</li>
+     *     <li>Преобразует событие в список сущностей {@link OrderRecordEntity}
+     *         с помощью {@link OrderRecordMapper}.</li>
+     *     <li>Сохраняет сущности в репозитории.</li>
+     *     <li>В блоке {@code finally} удаляет traceId из MDC.</li>
+     * </ol>
+     * </p>
+     *
+     * @param record запись Kafka, содержащая ключ, значение и заголовки
+     */
     @KafkaListener(topics = "orders", groupId = "notification-group")
     public void consume(ConsumerRecord<String, String> record) {
         if (validateApiKeyFromRecord(record)) return;

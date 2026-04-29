@@ -12,6 +12,22 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * REST-контроллер для получения информации о заказах в сервисе уведомлений.
+ * <p>
+ * Предоставляет эндпоинты для:
+ * <ul>
+ *     <li>получения всех записей заказов;</li>
+ *     <li>поиска записей по идентификатору заказа;</li>
+ *     <li>поиска записей по идентификатору пользователя.</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Базовый путь: {@code /api/orders}.
+ * </p>
+ *
+ * @see SearchOrderRecordService
+ */
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
@@ -19,17 +35,34 @@ import java.util.UUID;
 public class OrderRecordController {
     private final SearchOrderRecordService searchOrderRecordService;
 
+    /**
+     * Возвращает список всех записей заказов.
+     *
+     * @return список {@link OrderRecordResponseDTO}
+     */
     @GetMapping("/all")
     public List<OrderRecordResponseDTO> getAllOrderRecords() {
         log.info("REST request to find orders");
         return searchOrderRecordService.findAll();
     }
 
+    /**
+     * Возвращает все записи заказов, относящиеся к конкретному заказу.
+     *
+     * @param orderId идентификатор заказа (UUID)
+     * @return список {@link OrderRecordResponseDTO} для указанного заказа
+     */
     @GetMapping("/by-order/{orderId}")
     public List<OrderRecordResponseDTO> getAllOrderRecordsByOrderId(@PathVariable("orderId") UUID orderId) {
         return searchOrderRecordService.findByOrderId(orderId);
     }
 
+    /**
+     * Возвращает все записи заказов, относящиеся к конкретному пользователю.
+     *
+     * @param userId идентификатор пользователя (UUID)
+     * @return список {@link OrderRecordResponseDTO} для указанного пользователя
+     */
     @GetMapping("/by-user/{userId}")
     public List<OrderRecordResponseDTO> getAllOrderRecordsByUserId(@PathVariable("userId") UUID userId) {
         return searchOrderRecordService.findByUserId(userId);

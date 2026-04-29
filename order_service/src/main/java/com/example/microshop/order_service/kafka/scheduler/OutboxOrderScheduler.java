@@ -19,6 +19,23 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Планировщик для обработки событий outbox (паттерн Transactional Outbox).
+ * <p>
+ * Регулярно сканирует таблицу outbox на наличие событий со статусом {@code PENDING}
+ * и отправляет их в Kafka-топик {@code orders}.
+ * Для каждого события добавляются заголовки:
+ * <ul>
+ *     <li>{@code X-Internal-Api-Key} — для аутентификации на стороне потребителя;</li>
+ *     <li>{@code X-Trace-Id} — для сквозного логирования.</li>
+ * </ul>
+ * После успешной отправки статус события обновляется на {@code SENT}
+ * и проставляется время отправки.
+ * </p>
+ *
+ * @see OutboxRepository
+ * @see KafkaTemplate
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -30,6 +47,24 @@ public class OutboxOrderScheduler {
     private String internalApiKey;
     private static final String TOPIC = "orders";
 
+    /**
+     * Периодически обрабатывает ожидающие отправки события.
+     * <p>
+     * Выполняется с фиксированной задержкой 5 секунд.
+     * Загружает не более 100 событий со статусом PENDING.
+     * Для каждого события:
+     * <ol>
+     *     <li>извлекает traceId (или генерирует новый);</li>
+     *     <li>устанавливает traceId в MDC;</li>
+     *     <li>формирует производительную запись Kafka с заголовками API-ключа и traceId;</li>
+     *     <li>отправляет запись;</li>
+     *     <li>обновляет статус события и время отправки;</li>
+     *     <li>в случае ошибки логгирует её, событие остаётся в статусе PENDING
+     *         для повторной обработки в следующем цикле.</li>
+     * </ol>
+     * Всегда очищает MDC после обработки каждого события.
+     * </p>
+     */
     @Scheduled(fixedDelay = 5000)
     public void processPendingEvents() {
         List<OutboxEntity> pendingEvents = outboxRepository.findOutboxEntityByStatusPending(PageRequest.of(0, 100));

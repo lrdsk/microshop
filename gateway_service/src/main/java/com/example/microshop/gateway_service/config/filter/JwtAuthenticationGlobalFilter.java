@@ -16,6 +16,28 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Глобальный фильтр для проверки JWT-токенов в API Gateway.
+ * <p>
+ * Фильтр перехватывает все входящие запросы и выполняет:
+ * <ul>
+ *     <li>Пропускает публичные пути (начинаются с {@code /auth/} или {@code /actuator/}) без проверки токена.</li>
+ *     <li>Для защищённых путей проверяет наличие заголовка {@code Authorization: Bearer <token>}.</li>
+ *     <li>Валидирует JWT-токен с помощью {@link JWTUtils#isTokenValid(String)}.</li>
+ *     <li>Извлекает из токена userId, username и role.</li>
+ *     <li>Добавляет извлечённые данные в заголовки запроса:
+ *         {@code X-User-Id}, {@code X-Username}, {@code X-User-Role}.</li>
+ *     <li>При отсутствии или недействительности токена возвращает ответ {@code 401 Unauthorized}
+ *         с JSON-сообщением об ошибке.</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Фильтр имеет приоритет {@code -100} (высокий), что гарантирует его выполнение до маршрутизации.
+ * </p>
+ *
+ * @see GlobalFilter
+ * @see JWTUtils
+ */
 @Component
 @Slf4j
 public class JwtAuthenticationGlobalFilter implements GlobalFilter, Ordered {

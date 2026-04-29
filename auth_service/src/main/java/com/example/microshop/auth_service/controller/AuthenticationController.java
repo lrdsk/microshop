@@ -21,6 +21,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Контроллер для аутентификации и управления пользователями.
+ * <p>
+ * Предоставляет эндпоинты для:
+ * <ul>
+ *     <li>входа в систему (логин) — выдача access и refresh токенов;</li>
+ *     <li>регистрации нового пользователя;</li>
+ *     <li>обновления access токена с использованием refresh токена.</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Все эндпоинты доступны по базовому пути {@code /auth}.
+ * </p>
+ *
+ * @see AuthRequestDTO
+ * @see AuthResponseDTO
+ * @see RegisterRequestDTO
+ */
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor

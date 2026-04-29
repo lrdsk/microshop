@@ -5,6 +5,7 @@ import com.example.microshop.auth_service.domain.UserFactory;
 import com.example.microshop.auth_service.entity.UserEntity;
 import com.example.microshop.auth_service.repository.UserRepository;
 import com.example.microshop.auth_service.service.user.command.RegisterUserCommand;
+import com.example.microshop.auth_service.utils.UserMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotNull;
 import org.junit.jupiter.api.DisplayName;

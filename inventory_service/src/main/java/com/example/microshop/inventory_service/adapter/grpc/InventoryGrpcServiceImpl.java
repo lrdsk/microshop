@@ -15,12 +15,48 @@ import org.slf4j.MDC;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * gRPC-сервис для управления товарами в инвентаре.
+ * <p>
+ * Реализует метод {@link #checkAvailabilityBatch} для массовой проверки
+ * доступности товаров и списания остатков.
+ * </p>
+ *
+ * @see InventoryServiceGrpc
+ * @see ProductService
+ */
 @GrpcService
 @RequiredArgsConstructor
 public class InventoryGrpcServiceImpl extends InventoryServiceGrpc.InventoryServiceImplBase {
 
     private final ProductService productService;
 
+    /**
+     * Обрабатывает пакетный запрос на проверку доступности товаров.
+     * <p>
+     * Для каждого запроса в списке:
+     * <ol>
+     *     <li>Проверяет корректность формата {@code product_id} (должен быть UUID).</li>
+     *     <li>Загружает все товары одним запросом через {@link ProductService#findAllByIds}.</li>
+     *     <li>Проверяет существование каждого товара.</li>
+     *     <li>Проверяет, достаточно ли остатков на складе.</li>
+     *     <li>В рамках одной транзакции списывает запрошенные количества (метод {@link ProductService#batchReduceQuantities}).</li>
+     *     <li>Формирует ответы в том же порядке, в котором поступили запросы.</li>
+     * </ol>
+     * </p>
+     * <p>
+     * При возникновении любой ошибки (неверный формат, товар не найден, недостаток остатков)
+     * возвращается соответствующий gRPC-статус:
+     * <ul>
+     *     <li>{@code INVALID_ARGUMENT} — некорректный UUID;</li>
+     *     <li>{@code NOT_FOUND} — товар не найден;</li>
+     *     <li>{@code FAILED_PRECONDITION} — недостаточно товара на складе или ошибка списания.</li>
+     * </ul>
+     * </p>
+     *
+     * @param requestList       список запросов {@link Inventory.ProductRequestList}
+     * @param responseObserver  наблюдатель для отправки ответа {@link Inventory.ProductResponseList}
+     */
     @Override
     public void checkAvailabilityBatch(Inventory.ProductRequestList requestList,
                                        io.grpc.stub.StreamObserver<Inventory.ProductResponseList> responseObserver) {

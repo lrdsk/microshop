@@ -11,6 +11,19 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * gRPC-клиент для взаимодействия с сервисом инвентаризации (inventory-service).
+ * <p>
+ * Предоставляет методы для вызова batch-эндпоинта {@code checkAvailabilityBatch},
+ * который проверяет доступность нескольких товаров за один вызов.
+ * Автоматически добавляет в gRPC-вызовы перехватчики для передачи trace ID
+ * ({@link TraceIdGrpcClientInterceptor}) и API-ключа ({@link ApiKeyClientInterceptor}).
+ * </p>
+ *
+ * @see InventoryServiceGrpc
+ * @see TraceIdGrpcClientInterceptor
+ * @see ApiKeyClientInterceptor
+ */
 @Component
 @RequiredArgsConstructor
 public class InventoryGrpcClient {

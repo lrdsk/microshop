@@ -4,6 +4,19 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Фабрика для создания доменных объектов {@link Product}.
+ * <p>
+ * Предоставляет статические методы для создания продуктов с обязательной проверкой
+ * всех полей на {@code null}. Также позволяет устанавливать временные метки аудита.
+ * </p>
+ * <p>
+ * Класс является финальным и имеет приватный конструктор,
+ * запрещающий создание экземпляров (утилитарный класс).
+ * </p>
+ *
+ * @see Product
+ */
 public final class ProductFactory {
     private ProductFactory() {
     }

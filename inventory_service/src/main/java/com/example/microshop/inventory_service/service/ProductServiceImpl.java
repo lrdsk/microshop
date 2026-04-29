@@ -16,6 +16,22 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Реализация сервиса для управления товарами в инвентаре.
+ * <p>
+ * Предоставляет методы для:
+ * <ul>
+ *     <li>получения всех товаров или по идентификаторам;</li>
+ *     <li>создания нового товара;</li>
+ *     <li>удаления товара;</li>
+ *     <li>массового списания остатков с пессимистической блокировкой.</li>
+ * </ul>
+ * </p>
+ *
+ * @see ProductService
+ * @see ProductRepository
+ * @see ProductMapper
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
