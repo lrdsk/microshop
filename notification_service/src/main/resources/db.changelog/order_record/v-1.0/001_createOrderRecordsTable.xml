@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.8.xsd">
+
+    <changeSet id="001_createOrderRecordsTable" author="y.mikhailov">
+        <createTable tableName="order_records">
+            <column name="id" type="UUID" remarks="Первичный ключ позиции заказа">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="order_id" type="UUID" remarks="Идентификатор заказа (общий для нескольких позиций)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_id" type="UUID" remarks="Идентификатор продукта">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="INT" remarks="Количество товара">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="DECIMAL(10,2)" remarks="Цена товара на момент заказа">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sale" type="INT" defaultValue="0" remarks="Скидка в процентах">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_price" type="DECIMAL(10,2)" remarks="Итоговая сумма по позиции (цена * количество * (100 - скидка)/100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="UUID" remarks="Идентификатор пользователя, владельца заказа">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

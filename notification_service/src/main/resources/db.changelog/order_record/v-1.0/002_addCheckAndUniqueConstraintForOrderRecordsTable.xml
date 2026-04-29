@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.8.xsd">
+
+    <changeSet id="002_addCheckAndUniqueConstraintForOrderRecordsTable" author="y.mikhailov">
+        <sql>
+    <![CDATA[
+            ALTER TABLE order_records
+                ADD CONSTRAINT ck_order_sale_range CHECK (sale >= 0 AND sale <= 100);
+            ]]>
+</sql>
+        <addUniqueConstraint
+                constraintName="uq_order_records_order_product"
+                tableName="order_records"
+                columnNames="order_id, product_id"/>
+    </changeSet>
+</databaseChangeLog>

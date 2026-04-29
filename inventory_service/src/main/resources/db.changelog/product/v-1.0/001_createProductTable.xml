@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.8.xsd">
+
+    <changeSet id="001_createProductTable" author="y.mikhailov">
+        <createTable tableName="products">
+            <column name="id" type="UUID" remarks="Идентификатор продукта">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(255)" remarks="Название продукта">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="quantity" type="int" remarks="Количество продукта на складе">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="DECIMAL(10,2)" remarks="Цена продукта (максимум 2 знака после запятой)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sale" type="int" defaultValue="0" remarks="Скидка на цену продукта в ПРОЦЕНТАХ (0 - 100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql>
+            <![CDATA[
+                ALTER TABLE products
+                    ADD CONSTRAINT ck_products_sale_range CHECK (sale >= 0 AND sale <= 100);
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

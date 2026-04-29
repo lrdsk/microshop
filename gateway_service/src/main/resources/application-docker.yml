@@ -1,0 +1,29 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: http://auth-service:8084
+          predicates:
+            - Path=/auth/**
+        - id: order-service
+          uri: http://order-service:8081
+          predicates:
+            - Path=/api/order/**
+        - id: notification-service
+          uri: http://notification-service:8083
+          predicates:
+            - Path=/api/orders/**
+        - id: inventory-service
+          uri: http://inventory-service:8082
+          predicates:
+            - Path=/api/products/**
+
+jwt:
+  secret: Vy9zGq5j2kL8pRt3nB7wXe1yQ6mJ4hF0dC2aK9sN8vU1=
+  access:
+    expiration:
+      ms: 900000
+  refresh:
+    expiration:
+      ms: 604800000
