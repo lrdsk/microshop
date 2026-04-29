@@ -3,6 +3,8 @@ package com.example.microshop.notification_service.service;
 import com.example.microshop.notification_service.dto.OrderRecordResponseDTO;
 import com.example.microshop.notification_service.entity.OrderRecordEntity;
 import com.example.microshop.notification_service.repository.OrderRecordRepository;
+import com.example.microshop.notification_service.utils.OrderRecordMapper;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +26,9 @@ class SearchOrderRecordServiceImplTest {
     @Mock
     private OrderRecordRepository orderRecordRepository;
 
+    @Mock
+    private OrderRecordMapper orderRecordMapper;
+
     @InjectMocks
     private SearchOrderRecordServiceImpl searchService;
 
@@ -38,6 +43,8 @@ class SearchOrderRecordServiceImplTest {
         OrderRecordEntity entity1 = createOrderRecordEntity(USER_ID, ORDER_ID);
         OrderRecordEntity entity2 = createOrderRecordEntity(USER_ID, ORDER_ID);
         when(orderRecordRepository.findAll()).thenReturn(List.of(entity1, entity2));
+        when(orderRecordMapper.mapFromOrderRecordEntityToOrderRecordResponseDTO(any()))
+                .thenReturn(getOrderRecordResponseDTO());
 
         // when
         List<OrderRecordResponseDTO> result = searchService.findAll();
@@ -55,6 +62,8 @@ class SearchOrderRecordServiceImplTest {
         // given
         OrderRecordEntity entity = createOrderRecordEntity(USER_ID, ORDER_ID);
         when(orderRecordRepository.findByOrderId(ORDER_ID)).thenReturn(List.of(entity));
+        when(orderRecordMapper.mapFromOrderRecordEntityToOrderRecordResponseDTO(any()))
+                .thenReturn(getOrderRecordResponseDTO());
 
         // when
         List<OrderRecordResponseDTO> result = searchService.findByOrderId(ORDER_ID);
@@ -83,6 +92,8 @@ class SearchOrderRecordServiceImplTest {
         // given
         OrderRecordEntity entity = createOrderRecordEntity(USER_ID, ORDER_ID);
         when(orderRecordRepository.findByUserId(USER_ID)).thenReturn(List.of(entity));
+        when(orderRecordMapper.mapFromOrderRecordEntityToOrderRecordResponseDTO(any()))
+                .thenReturn(getOrderRecordResponseDTO());
 
         // when
         List<OrderRecordResponseDTO> result = searchService.findByUserId(USER_ID);
@@ -107,7 +118,7 @@ class SearchOrderRecordServiceImplTest {
     // Вспомогательный метод для создания тестовой сущности
     private OrderRecordEntity createOrderRecordEntity(UUID userId, UUID orderId) {
         OrderRecordEntity entity = new OrderRecordEntity();
-        entity.setId(UUID.randomUUID());
+        entity.setId(getRecordId());
         entity.setOrderId(orderId);
         entity.setProductId(PRODUCT_ID);
         entity.setQuantity(2);
@@ -116,5 +127,22 @@ class SearchOrderRecordServiceImplTest {
         entity.setTotalPrice(BigDecimal.valueOf(180.0));
         entity.setUserId(userId);
         return entity;
+    }
+
+    private static OrderRecordResponseDTO getOrderRecordResponseDTO() {
+        return new OrderRecordResponseDTO(
+                getRecordId(),
+                ORDER_ID,
+                PRODUCT_ID,
+                2,
+                100.0,
+                10,
+                180.0,
+                USER_ID
+        );
+    }
+
+    private static @NotNull UUID getRecordId() {
+        return UUID.fromString("497b1d1c-fed3-4fcd-b921-d2971046183e");
     }
 }
