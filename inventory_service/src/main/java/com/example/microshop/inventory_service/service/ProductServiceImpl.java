@@ -5,12 +5,16 @@ import com.example.microshop.inventory_service.domain.ProductFactory;
 import com.example.microshop.inventory_service.entity.ProductEntity;
 import com.example.microshop.inventory_service.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -55,19 +59,40 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public int reduceProductQuantity(UUID id, int quantity) {
-        log.info("Called ProductService to reduce product quantity for product with id: {} and reduce on quantity: {}", id, quantity);
-        ProductEntity productEntity = productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Product with id '%s' not found".formatted(id)));
+    public Map<UUID, Product> findAllByIds(List<UUID> productIds) {
+        log.info("Called ProductService to find products in ids: {}", productIds);
+        List<Product> products = productRepository.findAllById(productIds)
+                .stream()
+                .map(productMapper::fromEntity)
+                .toList();
+        return products.stream().collect(Collectors.toMap(Product::getId, p -> p));
+    }
 
-        Product product = productMapper.fromEntity(productEntity);
-        int reducedQuantity = product.reduceQuantity(quantity);
+    @Override
+    @Transactional
+    public Map<UUID, Product> batchReduceQuantities(Map<UUID, Integer> requiredQuantities) {
+        log.info("Called ProductService to reduce product quantity for products: {}", requiredQuantities);
 
-        log.info("Product quantity reduced on: {}", reducedQuantity);
+        List<UUID> ids = new ArrayList<>(requiredQuantities.keySet());
+        List<ProductEntity> productEntities = productRepository.findAllByIdWithPessimisticLock(ids);
+        List<Product> products = productEntities.stream()
+                .map(productMapper::fromEntity)
+                .toList();
 
-        productEntity.setQuantity(reducedQuantity);
-        productRepository.save(productEntity);
+        Map<UUID, Product> productMap = products.stream().collect(Collectors.toMap(Product::getId, p -> p));
 
-        return reducedQuantity;
+        for (int i = 0; i < products.size(); i++) {
+            Product product = products.get(i);
+            Integer reduceBy = requiredQuantities.get(product.getId());
+            if (reduceBy == null) continue;
+
+            int reducedQuantity = product.reduceQuantity(reduceBy);
+            productEntities.get(i).setQuantity(reducedQuantity);
+            log.info("Product quantity reduced on: {} for product: {}", reducedQuantity, product.getId());
+        }
+
+        productRepository.saveAll(productEntities);
+
+        return productMap;
     }
 }

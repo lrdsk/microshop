@@ -1,4 +1,4 @@
-package com.example.microshop.order_service.service.order;
+package com.example.microshop.order_service.utils;
 
 import com.example.microshop.order_service.domain.Order;
 import com.example.microshop.order_service.entity.OrderEntity;

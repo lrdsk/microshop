@@ -9,21 +9,30 @@ import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class InventoryGrpcClient {
+
     @GrpcClient(value = "inventory-service")
     private InventoryServiceGrpc.InventoryServiceBlockingStub inventoryStub;
 
     @Value("${internal.api.key}")
     private String apiKey;
 
-    public Inventory.ProductResponse checkProduct(String productId, int quantity) {
-        Inventory.ProductRequest request = Inventory.ProductRequest.newBuilder()
-                .setProductId(productId)
-                .setQuantity(quantity)
+    /**
+     * Batch-проверка нескольких продуктов за один вызов.
+     * @param requests список пар (productId, quantity)
+     * @return список ответов для каждого продукта в том же порядке
+     */
+    public List<Inventory.ProductResponse> checkProductsBatch(List<Inventory.ProductRequest> requests) {
+        Inventory.ProductRequestList requestList = Inventory.ProductRequestList.newBuilder()
+                .addAllRequests(requests)
                 .build();
-        return getStubWithTraceAndInternalApiKey().checkAvailability(request);
+        Inventory.ProductResponseList responseList = getStubWithTraceAndInternalApiKey()
+                .checkAvailabilityBatch(requestList);
+        return responseList.getResponsesList();
     }
 
     private InventoryServiceGrpc.InventoryServiceBlockingStub getStubWithTraceAndInternalApiKey() {

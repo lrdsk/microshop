@@ -31,7 +31,6 @@ public class OutboxOrderScheduler {
     private static final String TOPIC = "orders";
 
     @Scheduled(fixedDelay = 5000)
-    @Transactional
     public void processPendingEvents() {
         List<OutboxEntity> pendingEvents = outboxRepository.findOutboxEntityByStatusPending(PageRequest.of(0, 100));
         for (OutboxEntity event : pendingEvents) {

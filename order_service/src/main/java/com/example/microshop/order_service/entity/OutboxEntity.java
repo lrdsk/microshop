@@ -29,4 +29,13 @@ public class OutboxEntity {
     @CreationTimestamp
     private LocalDateTime createdAt;
     private LocalDateTime sentAt;
+
+    public OutboxEntity(AggregateType aggregateType, UUID aggregateId, String eventType, String payload, UUID traceId, EventStatus status) {
+        this.aggregateType = aggregateType;
+        this.aggregateId = aggregateId;
+        this.eventType = eventType;
+        this.payload = payload;
+        this.traceId = traceId;
+        this.status = status;
+    }
 }

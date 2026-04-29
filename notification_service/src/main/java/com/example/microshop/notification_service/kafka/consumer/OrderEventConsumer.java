@@ -3,6 +3,7 @@ package com.example.microshop.notification_service.kafka.consumer;
 import com.example.microshop.notification_service.entity.OrderRecordEntity;
 import com.example.microshop.notification_service.kafka.event.OrderCreatedEvent;
 import com.example.microshop.notification_service.repository.OrderRecordRepository;
+import com.example.microshop.notification_service.utils.OrderRecordMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 public class OrderEventConsumer {
     private final ObjectMapper objectMapper;
     private final OrderRecordRepository repository;
+    private final OrderRecordMapper orderRecordMapper;
     @Value("${internal.api.key}")
     private String internalApiKey;
 
@@ -40,18 +42,7 @@ public class OrderEventConsumer {
             OrderCreatedEvent event = objectMapper.readValue(record.value(), OrderCreatedEvent.class);
             log.info("Received order event: {}", event.getOrderId());
 
-            List<OrderRecordEntity> records = event.getOrderItemEvents().stream()
-                    .map(item -> new OrderRecordEntity(
-                            UUID.randomUUID(),
-                            event.getOrderId(),
-                            item.getProductId(),
-                            item.getQuantity(),
-                            new BigDecimal(item.getPrice()),
-                            item.getSale(),
-                            new BigDecimal(item.getTotalPrice()),
-                            event.getUserId()
-                    ))
-                    .collect(Collectors.toList());
+            List<OrderRecordEntity> records = orderRecordMapper.fromOrderCreatedEventToOrderRecordEntities(event);
 
             repository.saveAll(records);
             log.info("Saved {} order items for orderId: {}", records.size(), event.getOrderId());

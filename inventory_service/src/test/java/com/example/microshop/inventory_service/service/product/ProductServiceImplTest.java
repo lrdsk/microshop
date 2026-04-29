@@ -129,40 +129,4 @@ class ProductServiceImplTest {
         //then
         verify(productRepository).deleteById(EXPECTED_PRODUCT_ID);
     }
-
-    @Test
-    @DisplayName("reduceProductQuantity успешно уменьшает количество")
-    void shouldReduceQuantitySuccessfully() {
-        //given
-        ProductEntity entity = new ProductEntity();
-        Product product = ProductFactory.createProduct(EXPECTED_PRODUCT_ID, EXPECTED_NAME, EXPECTED_QUANTITY, EXPECTED_PRICE, EXPECTED_SALE);
-
-        when(productRepository.findById(EXPECTED_PRODUCT_ID)).thenReturn(Optional.of(entity));
-        when(productMapper.fromEntity(entity)).thenReturn(product);
-        when(productRepository.save(entity)).thenReturn(entity);
-
-        //when
-        int result = productService.reduceProductQuantity(EXPECTED_PRODUCT_ID, REDUCE_BY);
-
-        //then
-        assertThat(result).isEqualTo(EXPECTED_REDUCED);
-        verify(productRepository).findById(EXPECTED_PRODUCT_ID);
-        verify(productMapper).fromEntity(entity);
-        verify(productRepository).save(entity);
-    }
-
-    @Test
-    @DisplayName("reduceProductQuantity выбрасывает EntityNotFoundException, если продукт не найден")
-    void shouldThrowExceptionWhenReducingMissingProduct() {
-        //given
-        when(productRepository.findById(EXPECTED_PRODUCT_ID)).thenReturn(Optional.empty());
-
-        //when then
-        assertThatThrownBy(() -> productService.reduceProductQuantity(EXPECTED_PRODUCT_ID, REDUCE_BY))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining(EXPECTED_PRODUCT_ID.toString());
-        verify(productRepository).findById(EXPECTED_PRODUCT_ID);
-        verifyNoMoreInteractions(productRepository);
-        verifyNoInteractions(productMapper);
-    }
 }

@@ -1,5 +1,6 @@
 package com.example.microshop.inventory_service.domain;
 
+import com.example.microshop.inventory_service.exception.InsufficientStockException;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,12 +40,13 @@ public class Product {
     }
 
 
-    public int reduceQuantity(int quantity) {
-        if(this.quantity < quantity) {
-           throw new IllegalStateException("Not enough stock");
+    public int reduceQuantity(int reduceBy) {
+        if(this.quantity < reduceBy) {
+           throw new InsufficientStockException(String.format("Product %s: insufficient stock. Required %d, available %d",
+                   this.id, reduceBy, this.quantity));
         }
 
-        this.quantity = this.quantity - quantity;
-        return quantity;
+        this.quantity = this.quantity - reduceBy;
+        return reduceBy;
     }
 }

@@ -1,6 +1,7 @@
 package com.example.microshop.order_service.service;
 
 import com.example.microshop.order_service.dto.ProductRequest;
+import com.example.microshop.order_service.exception.ProductCheckFailedException;
 import com.example.microshop.order_service.service.grpc.InventoryGrpcClient;
 import com.example.microshop.order_service.service.order.CreatorOrderServiceImpl;
 import com.example.microshop.order_service.service.order.command.CreateOrderCommand;
@@ -20,7 +21,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,23 +44,30 @@ class CreatorOrderServiceImplTest {
     private static final int SALE = 10;
 
     @Test
-    @DisplayName("Успешное создание заказа: проверка gRPC и вызов orderService")
+    @DisplayName("Успешное создание заказа: batch gRPC и вызов orderService")
     void shouldCreateOrderSuccessfully() {
-        //given
+        // given
         ProductRequest request = new ProductRequest(PRODUCT_ID, QUANTITY);
+        List<Inventory.ProductRequest> grpcRequests = List.of(
+                Inventory.ProductRequest.newBuilder()
+                        .setProductId(PRODUCT_ID_STR)
+                        .setQuantity(QUANTITY)
+                        .build()
+        );
         Inventory.ProductResponse productResponse = Inventory.ProductResponse.newBuilder()
                 .setProductId(PRODUCT_ID_STR)
                 .setQuantity(10)
                 .setPrice(PRICE)
                 .setSale(SALE)
                 .build();
-        when(inventoryClient.checkProduct(PRODUCT_ID_STR, QUANTITY)).thenReturn(productResponse);
+        when(inventoryClient.checkProductsBatch(grpcRequests))
+                .thenReturn(List.of(productResponse));
 
-        //when
+        // when
         creatorOrderService.findProductsAndCreateOrder(List.of(request), USER_ID);
 
-        //then
-        verify(inventoryClient, times(1)).checkProduct(PRODUCT_ID_STR, QUANTITY);
+        // then
+        verify(inventoryClient, times(1)).checkProductsBatch(grpcRequests);
         ArgumentCaptor<CreateOrderCommand> captor = ArgumentCaptor.forClass(CreateOrderCommand.class);
         verify(orderService, times(1)).createOrder(captor.capture());
         CreateOrderCommand command = captor.getValue();
@@ -73,50 +80,40 @@ class CreatorOrderServiceImplTest {
     }
 
     @Test
-    @DisplayName("Ошибка gRPC -> выбрасывается RuntimeException")
+    @DisplayName("Ошибка gRPC -> выбрасывается ProductCheckFailedException")
     void shouldThrowExceptionWhenGrpcFails() {
-        //given
+        // given
         ProductRequest request = new ProductRequest(PRODUCT_ID, QUANTITY);
+        List<Inventory.ProductRequest> grpcRequests = List.of(
+                Inventory.ProductRequest.newBuilder()
+                        .setProductId(PRODUCT_ID_STR)
+                        .setQuantity(QUANTITY)
+                        .build()
+        );
         StatusRuntimeException grpcException = Status.UNAVAILABLE.withDescription("gRPC unavailable").asRuntimeException();
-        when(inventoryClient.checkProduct(PRODUCT_ID_STR, QUANTITY)).thenThrow(grpcException);
+        when(inventoryClient.checkProductsBatch(grpcRequests)).thenThrow(grpcException);
 
-        //when then
+        // when then
         assertThatThrownBy(() -> creatorOrderService.findProductsAndCreateOrder(List.of(request), USER_ID))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Product check failed");
-        verify(orderService, never()).createOrder(any());
-    }
-
-    @Test
-    @DisplayName("Недостаточно товара на складе -> IllegalStateException")
-    void shouldThrowExceptionWhenNotEnoughStock() {
-        //given
-        ProductRequest request = new ProductRequest(PRODUCT_ID, QUANTITY);
-        Inventory.ProductResponse productResponse = Inventory.ProductResponse.newBuilder()
-                .setProductId(PRODUCT_ID_STR)
-                .setQuantity(1)
-                .setPrice(PRICE)
-                .setSale(SALE)
-                .build();
-        when(inventoryClient.checkProduct(PRODUCT_ID_STR, QUANTITY)).thenReturn(productResponse);
-
-        //when then
-        assertThatThrownBy(() -> creatorOrderService.findProductsAndCreateOrder(List.of(request), USER_ID))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Not enough stock");
+                .isInstanceOf(ProductCheckFailedException.class)
+                .hasMessageContaining("Batch product check failed: UNAVAILABLE: gRPC unavailable");
         verify(orderService, never()).createOrder(any());
     }
 
     @Test
     @DisplayName("Обработка нескольких товаров в заказе")
     void shouldHandleMultipleProducts() {
-        //given
+        // given
         UUID productId1 = UUID.randomUUID();
         UUID productId2 = UUID.randomUUID();
         String productId1Str = productId1.toString();
         String productId2Str = productId2.toString();
         ProductRequest request1 = new ProductRequest(productId1, 1);
         ProductRequest request2 = new ProductRequest(productId2, 3);
+        List<Inventory.ProductRequest> grpcRequests = List.of(
+                Inventory.ProductRequest.newBuilder().setProductId(productId1Str).setQuantity(1).build(),
+                Inventory.ProductRequest.newBuilder().setProductId(productId2Str).setQuantity(3).build()
+        );
         Inventory.ProductResponse productResponse1 = Inventory.ProductResponse.newBuilder()
                 .setProductId(productId1Str)
                 .setQuantity(5)
@@ -129,13 +126,13 @@ class CreatorOrderServiceImplTest {
                 .setPrice(30.0)
                 .setSale(5)
                 .build();
-        when(inventoryClient.checkProduct(productId1Str, 1)).thenReturn(productResponse1);
-        when(inventoryClient.checkProduct(productId2Str, 3)).thenReturn(productResponse2);
+        when(inventoryClient.checkProductsBatch(grpcRequests))
+                .thenReturn(List.of(productResponse1, productResponse2));
 
-        //when
+        // when
         creatorOrderService.findProductsAndCreateOrder(List.of(request1, request2), USER_ID);
 
-        //then
+        // then
         ArgumentCaptor<CreateOrderCommand> captor = ArgumentCaptor.forClass(CreateOrderCommand.class);
         verify(orderService).createOrder(captor.capture());
         CreateOrderCommand command = captor.getValue();
